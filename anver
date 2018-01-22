@@ -2,7 +2,17 @@
 
 input = ARGV.join(' ')
 
-Struct.new("Release", :code_name, :version, :api_level)
+Struct.new("Release", :code_name, :version, :api_level) do
+  BASE_COLOR_CODE = '37'
+  NAME_COLOR_CODE = '35'
+  VERSION_COLOR_CODE = '91'
+  API_COLOR_CODE = '36'
+  def to_s
+    "\e[#{BASE_COLOR_CODE}mName: \e[#{NAME_COLOR_CODE}m#{code_name}\e[#{BASE_COLOR_CODE}m, " +
+      "Version: \e[#{VERSION_COLOR_CODE}m#{version}\e[#{BASE_COLOR_CODE}m, " +
+      "Api Level: \e[#{API_COLOR_CODE}m#{api_level}\e[#{BASE_COLOR_CODE}m"
+  end
+end
 
 releases = [
   Struct::Release.new("Oreo",                "8.1.0",         '27'),
@@ -32,6 +42,11 @@ releases = [
   Struct::Release.new("(no code name)",      "1.1",            '2'),
   Struct::Release.new("(no code name)",      "1.0",            '1')
 ]
+
+if input == 'all'
+  puts releases
+  exit
+end
 
 def matches_release(input, release)
   matches_code_name(input, release.code_name) || matches_version(input, release.version) || matches_api_level(input, release.api_level)
@@ -63,6 +78,8 @@ releases.each do |release|
   end
 end
 
-possibles.each do |possible|
-  puts "#{possible.code_name}, #{possible.version}, Api Level: #{possible.api_level}"
+if possibles.any?
+  puts possibles
+else
+  puts "No matches for #{input} :("
 end
