@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+
+input = ARGV.join(' ')
+
+Struct.new("Release", :code_name, :version, :api_level)
+
+releases = [
+  Struct::Release.new("Oreo",                "8.1.0",         '27'),
+  Struct::Release.new("Oreo",                "8.0.0",         '26'),
+  Struct::Release.new("Nougat",              "7.1",           '25'),
+  Struct::Release.new("Nougat",              "7.0",           '24'),
+  Struct::Release.new("Marshmallow",         "6.0",           '23'),
+  Struct::Release.new("Lollipop",            "5.1",           '22'),
+  Struct::Release.new("Lollipop",            "5.0",           '21'),
+  Struct::Release.new("KitKat",              "4.4 - 4.4.4",   '19'),
+  Struct::Release.new("Jelly Bean",          "4.3.x",         '18'),
+  Struct::Release.new("Jelly Bean",          "4.2.x",         '17'),
+  Struct::Release.new("Jelly Bean",          "4.1.x",         '16'),
+  Struct::Release.new("Ice Cream Sandwich",  "4.0.3 - 4.0.4", '15'),
+  Struct::Release.new("Ice Cream Sandwich",  "4.0.1 - 4.0.2", '14'),
+  Struct::Release.new("Honeycomb",           "3.2.x",         '13'),
+  Struct::Release.new("Honeycomb",           "3.1",           '12'),
+  Struct::Release.new("Honeycomb",           "3.0",           '11'),
+  Struct::Release.new("Gingerbread",         "2.3.3 - 2.3.7", '10'),
+  Struct::Release.new("Gingerbread",         "2.3 - 2.3.2",    '9'),
+  Struct::Release.new("Froyo",               "2.2.x",          '8'),
+  Struct::Release.new("Eclair",              "2.1",            '7'),
+  Struct::Release.new("Eclair",              "2.0.1",          '6'),
+  Struct::Release.new("Eclair",              "2.0",            '5'),
+  Struct::Release.new("Donut",               "1.6",            '4'),
+  Struct::Release.new("Cupcake",             "1.5",            '3'),
+  Struct::Release.new("(no code name)",      "1.1",            '2'),
+  Struct::Release.new("(no code name)",      "1.0",            '1')
+]
+
+def matches_release(input, release)
+  matches_code_name(input, release.code_name) || matches_version(input, release.version) || matches_api_level(input, release.api_level)
+end
+
+def matches_code_name(input, code_name)
+  input.casecmp(code_name) == 0
+end
+
+def matches_version(input, version)
+  version_major, version_minor = version.split('.')
+  input_major, input_minor = input.split('.')
+  version_major == input_major && (input_minor.nil? || input_minor == input_minor)
+end
+
+def matches_api_level(input, api_level)
+  input == api_level
+end
+
+possibles = []
+
+releases.each do |release|
+  if input == release.api_level
+    possibles << release
+  elsif input == release.version
+    possibles << release
+  elsif matches_release(input, release)
+    possibles << release
+  end
+end
+
+possibles.each do |possible|
+  puts "#{possible.code_name}, #{possible.version}, Api Level: #{possible.api_level}"
+end
