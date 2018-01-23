@@ -48,12 +48,13 @@ if input == 'all'
   exit
 end
 
+# TODO: return a match ranking from here for sorting later
 def matches_release(input, release)
   matches_code_name(input, release.code_name) || matches_version(input, release.version) || matches_api_level(input, release.api_level)
 end
 
 def matches_code_name(input, code_name)
-  input.casecmp(code_name) == 0
+  levenshtein_distance(input, code_name) < 5
 end
 
 def matches_version(input, version)
@@ -66,20 +67,64 @@ def matches_api_level(input, api_level)
   input == api_level
 end
 
+def levenshtein_distance(s, t)
+  n = s.length
+  m = t.length
+
+  if n == 0
+    return n
+  end
+
+  if m == 0
+    return m
+  end
+
+  matrix = []
+
+  matrix << (0..m).to_a
+
+  (1..n).each do |j|
+    matrix << [j, *m.times.collect { nil }]
+  end
+
+  (1..n).each do |i|
+    (1..m).each do |j|
+      cost = s[i-1] == t[j-1] ? 0 : 1
+      a = matrix[i-1][j] + 1
+      b = matrix[i][j-1] + 1
+      c = matrix[i-1][j-1] + cost
+      matrix[i][j] = [a,b,c].min
+    end
+  end
+
+  # print_matrix matrix
+
+  matrix[n][m]
+end
+
+def print_matrix(matrix)
+  cols = matrix.length
+  rows = matrix.first.length
+
+  str = ""
+
+  (0...rows).each do |row|
+    (0...cols).each do |col|
+      str << "#{matrix[col][row]}, "
+    end
+    str << "\n"
+  end
+  puts str
+end
+
 possibles = []
 
 releases.each do |release|
-  if input == release.api_level
-    possibles << release
-  elsif input == release.version
-    possibles << release
-  elsif matches_release(input, release)
-    possibles << release
-  end
+  possibles << release if matches_release(input, release)
 end
 
 if possibles.any?
-  puts possibles
+  puts possibles.reverse
 else
   puts "No matches for #{input} :("
 end
